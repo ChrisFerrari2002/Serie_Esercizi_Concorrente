@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/Serie_Esercizi_Concorrente.iml" filepath="$PROJECT_DIR$/Serie_Esercizi_Concorrente.iml" />
+      <module fileurl="file://$PROJECT_DIR$/src/ferrari_chris/assignement02/assignement02.iml" filepath="$PROJECT_DIR$/src/ferrari_chris/assignement02/assignement02.iml" />
+      <module fileurl="file://$PROJECT_DIR$/src/ferrari_chris/ferrari_chris.iml" filepath="$PROJECT_DIR$/src/ferrari_chris/ferrari_chris.iml" />
+    </modules>
+  </component>
+</project>

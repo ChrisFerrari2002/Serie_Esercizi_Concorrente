@@ -18,7 +18,6 @@ class TruckSpeedReader implements Runnable {
     @Override
     public void run() {
         while (TruckSpeedMonitor.isMonitoring.get()) {
-
             // Update local speed if needed
             if (lastObservedSpeed != TruckSpeedMonitor.sharedSpeed) {
                 lastObservedSpeed = TruckSpeedMonitor.sharedSpeed;
@@ -31,8 +30,6 @@ class TruckSpeedReader implements Runnable {
 
 public class TruckSpeedMonitor {
     final static AtomicBoolean isMonitoring = new AtomicBoolean(true);
-
-    final static ReentrantLock lock = new ReentrantLock();
     static volatile int sharedSpeed = 0;
     private static int modifySharaedSpeed(){
         Random random = new Random();
