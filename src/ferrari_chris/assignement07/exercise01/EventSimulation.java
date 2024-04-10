@@ -1,4 +1,4 @@
-
+package ferrari_chris.assignement07.exercise01;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -56,11 +56,15 @@ class EventSource implements Runnable {
 }
 
 class EventListener {
-    private final int id;
+    private int id;
+
+    private EventListener(final int id){
+        this.id = id;
+    }
 
     public EventListener(final int id, final EventSource eventSource) {
         // Add listener to the eventSource to get event notifications
-        eventSource.registerListener(id, this);
+        eventSource.registerListener(id, new EventListener(id));
 
         // Sleep added to facilitate the appearance of the problem. In a real world
         // program, other initialization operations may be performed
@@ -69,8 +73,6 @@ class EventListener {
         } catch (final InterruptedException e) {
             // Thread interrupted
         }
-
-        this.id = id;
     }
 
     public void onEvent(final int listenerID, final Event e) {

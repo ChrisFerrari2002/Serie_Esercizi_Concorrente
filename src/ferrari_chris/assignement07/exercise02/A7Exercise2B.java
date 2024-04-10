@@ -1,4 +1,4 @@
-
+package ferrari_chris.assignement07.exercise02;
 
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.locks.Lock;

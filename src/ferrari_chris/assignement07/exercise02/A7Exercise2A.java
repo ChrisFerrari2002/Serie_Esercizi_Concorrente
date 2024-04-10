@@ -1,6 +1,8 @@
-
+package ferrari_chris.assignement07.exercise02;
 
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 // REMARK: do not modify this class !
 class SharedState {
@@ -31,6 +33,7 @@ class SharedState {
 
 public class A7Exercise2A {
 
+
     static class Helper implements Runnable {
         @Override
         public void run() {
@@ -42,7 +45,6 @@ public class A7Exercise2A {
             }
 
             int lastValue = A7Exercise2A.sharedState.getValue();
-
             System.out.println("Helper : shared state initialized and current value is " + lastValue + ". Waiting until value changes");
 
             // Wait until value changes
@@ -82,7 +84,7 @@ public class A7Exercise2A {
             }
 
             System.out.println("Starter: initialized shared state");
-            A7Exercise2A.sharedState = new SharedState();
+            SharedState sharedStateThread = new SharedState();
 
             // Sleep before updating
             try {
@@ -91,11 +93,11 @@ public class A7Exercise2A {
                 System.err.println("Starter interrupted.");
                 return;
             }
-
+            A7Exercise2A.sharedState = sharedStateThread;
             // Perform 5000 increments and exit
             System.out.println("Starter: begin incrementing");
             for (int i = 0; i < 5000; i++) {
-                A7Exercise2A.sharedState.increment(ThreadLocalRandom.current().nextInt(1, 10));
+                sharedStateThread.increment(ThreadLocalRandom.current().nextInt(1, 10));
                 if ((i % 100) == 0)
                     try {
                         Thread.sleep(1);
@@ -104,11 +106,12 @@ public class A7Exercise2A {
                         return;
                     }
             }
+            A7Exercise2A.sharedState = sharedStateThread;
             System.out.println("Starter: completed");
         }
     }
 
-    static SharedState sharedState = null;
+    static volatile SharedState sharedState = null;
 
     public static void main(final String[] args) {
         // Create Threads
