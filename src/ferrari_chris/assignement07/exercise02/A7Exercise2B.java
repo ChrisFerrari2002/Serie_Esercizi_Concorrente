@@ -131,7 +131,7 @@ public class A7Exercise2B {
         }
     }
 
-    static ThreadSafeSharedState sharedState = null;
+    volatile static ThreadSafeSharedState sharedState = null;
 
     public static void main(final String[] args) {
         // Create Threads

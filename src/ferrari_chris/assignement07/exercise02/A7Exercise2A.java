@@ -32,7 +32,7 @@ class SharedState {
 }
 
 public class A7Exercise2A {
-
+    static Lock lock = new ReentrantLock();
 
     static class Helper implements Runnable {
         @Override
@@ -43,10 +43,9 @@ public class A7Exercise2A {
                 if (A7Exercise2A.sharedState != null)
                     break;
             }
-
-            int lastValue = A7Exercise2A.sharedState.getValue();
+            SharedState threadSharedState = A7Exercise2A.sharedState;
+            int lastValue = threadSharedState.getValue();
             System.out.println("Helper : shared state initialized and current value is " + lastValue + ". Waiting until value changes");
-
             // Wait until value changes
             while (true) {
                 final int curValue = A7Exercise2A.sharedState.getValue();
@@ -58,7 +57,12 @@ public class A7Exercise2A {
             System.out.println("Helper : value changed to " + lastValue + "!");
 
             for (int i = 0; i < 5000; i++) {
-                A7Exercise2A.sharedState.increment(ThreadLocalRandom.current().nextInt(1, 10));
+                lock.lock();
+                try {
+                    A7Exercise2A.sharedState.increment(ThreadLocalRandom.current().nextInt(1, 10));
+                } finally {
+                    lock.unlock();
+                }
                 if ((i % 100) == 0)
                     try {
                         Thread.sleep(1);
@@ -72,7 +76,7 @@ public class A7Exercise2A {
     }
 
     static class Starter implements Runnable {
-
+        final SharedState threadSharedState = new SharedState();
         @Override
         public void run() {
             System.out.println("Starter: sleeping");
@@ -84,7 +88,7 @@ public class A7Exercise2A {
             }
 
             System.out.println("Starter: initialized shared state");
-            SharedState sharedStateThread = new SharedState();
+            sharedState = threadSharedState;
 
             // Sleep before updating
             try {
@@ -93,11 +97,15 @@ public class A7Exercise2A {
                 System.err.println("Starter interrupted.");
                 return;
             }
-            A7Exercise2A.sharedState = sharedStateThread;
             // Perform 5000 increments and exit
             System.out.println("Starter: begin incrementing");
             for (int i = 0; i < 5000; i++) {
-                sharedStateThread.increment(ThreadLocalRandom.current().nextInt(1, 10));
+                lock.lock();
+                try {
+                    threadSharedState.increment(ThreadLocalRandom.current().nextInt(1, 10));
+                } finally {
+                    lock.unlock();
+                }
                 if ((i % 100) == 0)
                     try {
                         Thread.sleep(1);
@@ -106,12 +114,12 @@ public class A7Exercise2A {
                         return;
                     }
             }
-            A7Exercise2A.sharedState = sharedStateThread;
             System.out.println("Starter: completed");
+            sharedState = threadSharedState;
         }
     }
 
-    static volatile SharedState sharedState = null;
+    volatile static SharedState sharedState = null;
 
     public static void main(final String[] args) {
         // Create Threads
