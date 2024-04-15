@@ -48,9 +48,10 @@ class Restroom {
 }
 
 class PublicRestrooms {
-    private final Lock lock = new ReentrantLock();
-    private final Restroom maleRestrooms[];
-    private final Restroom femaleRestrooms[];
+    private final Lock maleLock = new ReentrantLock();
+    private final Lock femaleLock = new ReentrantLock();
+    private volatile Restroom maleRestrooms[];
+    private volatile Restroom femaleRestrooms[];
 
     public PublicRestrooms(final int nMaleRestrooms, final int nFemaleRestrooms) {
         this.maleRestrooms = new Restroom[nMaleRestrooms];
@@ -65,10 +66,10 @@ class PublicRestrooms {
     public boolean occupy(final boolean isMale) {
         Restroom occupiedRestroom = null;
 
-        lock.lock();
-        try {
-            if (isMale) {
-                // Find first male restroom available
+        if (isMale) {
+            // Find first male restroom available
+            maleLock.lock();
+            try {
                 for (int i = 0; i < maleRestrooms.length; i++) {
                     final Restroom restRoom = maleRestrooms[i];
                     if (restRoom.tryToOccupy()) {
@@ -76,8 +77,13 @@ class PublicRestrooms {
                         break;
                     }
                 }
-            } else {
-                // Find first female restroom available
+            } finally {
+                maleLock.unlock();
+            }
+        } else {
+            // Find first female restroom available
+            femaleLock.lock();
+            try {
                 for (int i = 0; i < femaleRestrooms.length; i++) {
                     final Restroom restRoom = femaleRestrooms[i];
                     if (restRoom.tryToOccupy()) {
@@ -85,9 +91,9 @@ class PublicRestrooms {
                         break;
                     }
                 }
+            } finally {
+                femaleLock.unlock();
             }
-        } finally {
-            lock.unlock();
         }
 
         // all restrooms occupied!
@@ -101,11 +107,20 @@ class PublicRestrooms {
         }
 
         // Leave restroom
-        lock.lock();
-        try {
-            occupiedRestroom.leave();
-        } finally {
-            lock.unlock();
+        if (isMale){
+            maleLock.lock();
+            try {
+                occupiedRestroom.leave();
+            } finally {
+                maleLock.unlock();
+            }
+        } else {
+            femaleLock.lock();
+            try {
+                occupiedRestroom.leave();
+            } finally {
+                femaleLock.unlock();
+            }
         }
         return true;
     }
