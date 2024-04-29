@@ -1,16 +1,13 @@
-
+package assignement09.exercise03;
 
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 class SalesEmployee implements Runnable {
-    private static final Lock lock = new ReentrantLock();
-    private static int salesCounter = 0;
+    private static final AtomicInteger salesCounter = new AtomicInteger(0);
 
     final static AtomicInteger ranking = new AtomicInteger(1);
     final private int id;
@@ -26,20 +23,18 @@ class SalesEmployee implements Runnable {
 
         boolean running = true;
         while (running) {
-            lock.lock();
-            try {
-                if (salesCounter > 1000000) {
-                    salesCounter = 0;
-                    running = false;
-                } else {
-                    salesCounter += 1 + r.nextInt(5);
-                }
-            } finally {
-                lock.unlock();
+            int currentSales;
+            int newSales;
+            do {
+                currentSales = salesCounter.get();
+                newSales = currentSales + 1 + r.nextInt(5);
+            } while (!salesCounter.compareAndSet(currentSales, newSales));
+
+            if (currentSales + newSales > 1000000) {
+                running = false;
             }
         }
 
-        // Remark: just for visualization purposes.
         System.out.println("Player" + id + ": finished. Rank: " + ranking.getAndIncrement());
     }
 }
@@ -47,10 +42,10 @@ class SalesEmployee implements Runnable {
 public class SalesRanking {
     public static void main(final String[] args) {
         final List<Thread> allThread = IntStream.range(0, 10).boxed()
-                .map(SalesEmployee::new)     // Create player
-                .map(Thread::new)     // Create thread for player (same as new Thread(player)
-                .peek(Thread::start)  // Call start on thread
-                .collect(Collectors.toList());    // Collect threads
+                .map(SalesEmployee::new)
+                .map(Thread::new)
+                .peek(Thread::start)
+                .collect(Collectors.toList());
 
         for (final Thread t : allThread) {
             try {
