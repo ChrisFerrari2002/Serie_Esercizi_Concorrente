@@ -52,17 +52,13 @@ class Philosopher implements Runnable {
     }
 
     private void pickUpForks() throws InterruptedException {
-        int left = id;
-        int right = (id + 1) % Philosophers.NUM_PHILOSOPHERS;
-        if (id % 2 == 0) {
-            while (!pickUpFork(left)) ;
-            Thread.sleep(Philosophers.UNIT_OF_TIME * 5);
-            while (!pickUpFork(right)) ;
-        } else {
-            while (!pickUpFork(right)) ;
-            Thread.sleep(Philosophers.UNIT_OF_TIME * 5);
-            while (!pickUpFork(left)) ;
-        }
+        // Wait until left fork has been picked up
+        while (!pickUpFork(id))
+            ;
+        Thread.sleep(Philosophers.UNIT_OF_TIME * 5);
+        // Wait until right fork has been picked up
+        while (!pickUpFork((id + 1) % Philosophers.NUM_PHILOSOPHERS))
+            ;
     }
 
     private boolean pickUpFork(final int id) {

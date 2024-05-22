@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Phaser;
 
 class Calculator implements Runnable{
@@ -60,6 +61,7 @@ class MatrixOperations {
     }
 
     public static void main(String[] args) {
+
         // Initialize matrix with random numbers
         initMatrix();
 
